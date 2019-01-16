@@ -48,12 +48,26 @@ class App extends Component {
 
 	renderLegs() {
 		return (
-			<svg style={{ marginLeft: '2.5px', marginTop: '2.5px' }}>
+			<svg
+				style={{
+					marginLeft: '2.5px',
+					marginTop: '2.5px',
+					height: '100%',
+					width: '100%'
+				}}
+			>
 				{this.state.data.legs.map((leg) => {
 					const pointOne = this.findLegCoordinates(leg.startStop);
 					const pointTwo = this.findLegCoordinates(leg.endStop);
-					return <Leg points={`${pointOne} ${pointTwo}`} />;
+					return (
+						<Leg
+							key={leg.legID}
+							id={leg.legID}
+							points={`${pointOne} ${pointTwo}`}
+						/>
+					);
 				})}
+				{this.renderDriverLocation()}
 			</svg>
 		);
 	}
@@ -66,6 +80,40 @@ class App extends Component {
 		return `${stop.x * 5},${stop.y * 5}`;
 	}
 
+	// rendering current location of driver
+	renderDriverLocation() {
+		const points = this.renderDriverProgress(
+			this.state.data.driver.activeLegID
+		);
+		console.log(points);
+		return (
+			<circle
+				cx={points.cx}
+				cy={points.cy}
+				r="5"
+				stroke="black"
+				strokeWidth="3"
+				fill="black"
+			/>
+		);
+	}
+
+	renderDriverProgress(legID) {
+		const p1 = this.state.data.stops.find((element) => {
+			return element.name === legID[0];
+		});
+		const p2 = this.state.data.stops.find((element) => {
+			return element.name === legID[1];
+		});
+
+		const xDiff = p2.x - p1.x;
+		const yDiff = p2.y - p1.y;
+
+		return {
+			cx: xDiff * 5 * 0.33 + p1.x * 5,
+			cy: yDiff * 5 * 0.33 + p1.y * 5
+		};
+	}
 	render() {
 		if (this.state.data) {
 			return (
