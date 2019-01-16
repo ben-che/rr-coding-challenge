@@ -1,0 +1,11 @@
+.stop {
+    height: 5px;
+    width: 5px;
+    border-radius: 50%;
+    position: absolute;
+    background-color: black;
+}
+
+.active {
+    background-color: green;
+}
