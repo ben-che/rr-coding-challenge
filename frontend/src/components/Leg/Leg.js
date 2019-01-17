@@ -6,7 +6,11 @@ export default function Leg(props) {
 		<polyline
 			id={props.id}
 			points={props.points}
-			style={{ fill: 'white', stroke: 'red', strokeWidth: '2' }}
+			style={{
+				fill: 'white',
+				stroke: `${props.active ? 'green' : 'red'}`,
+				strokeWidth: '2'
+			}}
 		/>
 	);
 }

@@ -69,6 +69,9 @@ class App extends Component {
 					);
 				})}
 				{this.renderDriverLocation()}
+				{this.renderCompletedProgress(
+					this.state.data.driver.activeLegID[0]
+				)}
 			</svg>
 		);
 	}
@@ -115,6 +118,23 @@ class App extends Component {
 		};
 	}
 
+	// Renders the completed portion of the leg
+	//  Takes the starting legId and the current location of the driver
+	renderCompletedProgress(legId) {
+		const p1 = this.state.data.stops.find((element) => {
+			return element.name === legId;
+		});
+		const p2 = this.renderDriverProgress(this.state.data.driver.activeLegID);
+		return (
+			<Leg
+				key={legId}
+				id={legId}
+				points={`${p1.x * 5},${p1.y * 5} ${p2.cx},${p2.cy} `}
+				active
+			/>
+		);
+	}
+
 	// Rendering the form to change active leg and driver's progress
 	renderForm() {
 		return (
@@ -124,12 +144,16 @@ class App extends Component {
 						onChange={(e) => {
 							this.handleSelectChange(e);
 						}}
+						value={this.state.data.driver.activeLegID}
 					>
 						{this.state.data.legs.map((leg) => {
 							return <option value={leg.legID}>{leg.legID}</option>;
 						})}
 					</select>
-					<input placeholder="enter progress percent here" />
+					<input
+						onBlur={(e) => this.handleInputChange(e)}
+						placeholder="enter progress percent here"
+					/>
 				</form>
 			</div>
 		);
@@ -142,8 +166,12 @@ class App extends Component {
 		this.setState({ data: newLocation });
 	}
 
+	handleInputChange(e) {
+		this.setState({ legProgress: e.target.value / 100 });
+	}
 	render() {
 		if (this.state.data) {
+			this.renderCompletedProgress(this.state.data.driver.activeLegID[0]);
 			return (
 				<div className="App">
 					{this.renderStops()}
