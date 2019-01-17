@@ -189,9 +189,9 @@ class App extends Component {
 					cx={this.state.bonusDriver.x * 5}
 					cy={this.state.bonusDriver.y * 5}
 					r="5"
-					stroke="red"
+					stroke="blue"
 					strokeWidth="3"
-					fill="red"
+					fill="blue"
 				/>
 			);
 		}
