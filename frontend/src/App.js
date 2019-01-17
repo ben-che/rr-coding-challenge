@@ -175,6 +175,25 @@ class App extends Component {
 						/>
 						{this.state.formError ? formError : null}
 					</div>
+					<div>
+						<label>Enter bonus driver's coordinates (x, y):</label>
+						<input
+							onChange={(e) => this.handleBonusDriverX(e)}
+							placeholder="ex. 72"
+							type="number"
+							min="0"
+							max="200"
+							value={Math.round(this.state.bonusDriver.x)}
+						/>
+						<input
+							onChange={(e) => this.handleBonusDriverY(e)}
+							placeholder="ex. 72"
+							type="number"
+							min="0"
+							max="200"
+							value={Math.round(this.state.bonusDriver.y)}
+						/>
+					</div>
 				</form>
 			</div>
 		);
@@ -255,10 +274,23 @@ class App extends Component {
 		}
 	}
 
+	// bonus driver form state
 	handleBonusDriverX(e) {
 		if (e.target.value <= 200 && e.target.value >= 0) {
 			let newLocation = this.state.bonusDriver;
 			newLocation.x = e.target.value;
+			this.setState({ bonusDriver: newLocation });
+			axios
+				.put('http://localhost:8080/bonusdriver', newLocation)
+				.then((res) => console.log(res))
+				.catch((e) => console.log(e));
+		}
+	}
+
+	handleBonusDriverY(e) {
+		if (e.target.value <= 200 && e.target.value >= 0) {
+			let newLocation = this.state.bonusDriver;
+			newLocation.y = e.target.value;
 			this.setState({ bonusDriver: newLocation });
 			axios
 				.put('http://localhost:8080/bonusdriver', newLocation)
