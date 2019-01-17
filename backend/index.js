@@ -13,6 +13,7 @@ console.log(data);
 app.use(cors());
 
 let driverInfo = data.initialLocation;
+let bonusInfo = data.bonus;
 
 // get route to retrieve legs:
 app.get('/legs', function(req, res, next) {
@@ -34,6 +35,16 @@ app.put('/driver', function(req, res, next) {
 	// mocking a db write
 	driverInfo = req.body;
 	res.json(driverInfo);
+});
+
+// bonus driver get and puts:
+app.get('/bonusdriver', function(req, res, next) {
+	res.json(bonusInfo);
+});
+
+app.put('/bonusdriver', function(req, res, next) {
+	bonusInfo = req.body;
+	res.json(bonusInfo);
 });
 
 app.listen(8080, function() {

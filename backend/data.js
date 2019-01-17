@@ -1,6 +1,10 @@
 // mock db:
 
 const data = {
+	bonus: {
+		x: 50,
+		y: 55
+	},
 	initialLocation: {
 		activeLegID: 'FG',
 		legProgress: '33'

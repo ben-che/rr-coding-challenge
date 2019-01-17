@@ -13,16 +13,18 @@ class App extends Component {
 			.all([
 				axios.get('http://localhost:8080/legs'),
 				axios.get('http://localhost:8080/stops'),
-				axios.get('http://localhost:8080/driver')
+				axios.get('http://localhost:8080/driver'),
+				axios.get('http://localhost:8080/bonusdriver')
 			])
 			.then(
-				axios.spread((legs, stops, initialLocation) => {
+				axios.spread((legs, stops, initialLocation, bonus) => {
 					data.legs = legs.data;
 					data.stops = stops.data;
 					data.driver = initialLocation.data;
 					this.setState({
 						data: data,
-						legProgress: data.driver.legProgress / 100
+						legProgress: data.driver.legProgress / 100,
+						bonusDriver: bonus.data
 					});
 				})
 			)
@@ -69,10 +71,14 @@ class App extends Component {
 						/>
 					);
 				})}
+				{/* driver */}
 				{this.renderDriverLocation()}
 				{this.renderCompletedProgress(
 					this.state.data.driver.activeLegID[0]
 				)}
+				{/* bonus driver */}
+				{this.renderBonusDriver()}
+				{this.renderBonusMin()}
 			</svg>
 		);
 	}
@@ -174,6 +180,53 @@ class App extends Component {
 		);
 	}
 
+	// bonus driver functions
+	renderBonusDriver() {
+		if (this.state.bonusDriver) {
+			console.log(this.state.bonusDriver);
+			return (
+				<circle
+					cx={this.state.bonusDriver.x * 5}
+					cy={this.state.bonusDriver.y * 5}
+					r="5"
+					stroke="red"
+					strokeWidth="3"
+					fill="red"
+				/>
+			);
+		}
+	}
+
+	renderBonusMin() {
+		const bonusX = this.state.bonusDriver.x * 5;
+		const bonusY = this.state.bonusDriver.y * 5;
+		let stop = this.state.data.stops[0].name;
+		let min =
+			Math.abs(bonusX - this.state.data.stops[0].x * 5) +
+			Math.abs(bonusY - this.state.data.stops[0].y * 5);
+		for (let i = 1; i < this.state.data.stops.length; i++) {
+			let newMin =
+				Math.abs(bonusX - this.state.data.stops[i].x * 5) +
+				Math.abs(bonusY - this.state.data.stops[i].y * 5);
+			if (newMin < min) {
+				min = newMin;
+				stop = this.state.data.stops[i].name;
+			}
+		}
+		const pointOne = this.state.data.stops.find((element) => {
+			return element.name === stop;
+		});
+
+		return (
+			<Leg
+				key="bonusLeg"
+				id="bonusLeg"
+				points={`${pointOne.x * 5},${pointOne.y * 5} ${this.state
+					.bonusDriver.x * 5},${this.state.bonusDriver.y * 5}`}
+			/>
+		);
+	}
+
 	// fns to control form state
 	handleSelectChange(e) {
 		let newLocation = this.state.data;
@@ -202,9 +255,20 @@ class App extends Component {
 		}
 	}
 
+	handleBonusDriverX(e) {
+		if (e.target.value <= 200 && e.target.value >= 0) {
+			let newLocation = this.state.bonusDriver;
+			newLocation.x = e.target.value;
+			this.setState({ bonusDriver: newLocation });
+			axios
+				.put('http://localhost:8080/bonusdriver', newLocation)
+				.then((res) => console.log(res))
+				.catch((e) => console.log(e));
+		}
+	}
+
 	render() {
 		if (this.state.data) {
-			this.renderCompletedProgress(this.state.data.driver.activeLegID[0]);
 			return (
 				<div className="app">
 					{this.renderStops()}
