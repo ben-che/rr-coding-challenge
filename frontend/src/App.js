@@ -20,7 +20,8 @@ class App extends Component {
 					data.stops = stops.data;
 					data.driver = initialLocation.data;
 					this.setState({
-						data: data
+						data: data,
+						legProgress: data.driver.legProgress / 100
 					});
 				})
 			)
@@ -85,7 +86,6 @@ class App extends Component {
 		const points = this.renderDriverProgress(
 			this.state.data.driver.activeLegID
 		);
-		console.log(points);
 		return (
 			<circle
 				cx={points.cx}
@@ -110,16 +110,45 @@ class App extends Component {
 		const yDiff = p2.y - p1.y;
 
 		return {
-			cx: xDiff * 5 * 0.33 + p1.x * 5,
-			cy: yDiff * 5 * 0.33 + p1.y * 5
+			cx: xDiff * 5 * this.state.legProgress + p1.x * 5,
+			cy: yDiff * 5 * this.state.legProgress + p1.y * 5
 		};
 	}
+
+	// Rendering the form to change active leg and driver's progress
+	renderForm() {
+		return (
+			<div>
+				<form>
+					<select
+						onChange={(e) => {
+							this.handleSelectChange(e);
+						}}
+					>
+						{this.state.data.legs.map((leg) => {
+							return <option value={leg.legID}>{leg.legID}</option>;
+						})}
+					</select>
+					<input placeholder="enter progress percent here" />
+				</form>
+			</div>
+		);
+	}
+
+	// fns to control form state
+	handleSelectChange(e) {
+		let newLocation = this.state.data;
+		newLocation.driver.activeLegID = e.target.value;
+		this.setState({ data: newLocation });
+	}
+
 	render() {
 		if (this.state.data) {
 			return (
 				<div className="App">
 					{this.renderStops()}
 					{this.renderLegs()}
+					{this.renderForm()}
 				</div>
 			);
 		}
