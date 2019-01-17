@@ -5,7 +5,8 @@ import axios from 'axios';
 import Stop from './components/Stop';
 import Leg from './components/Leg';
 class App extends Component {
-	state = {};
+	state = { formError: false };
+
 	componentDidMount() {
 		let data = {};
 		axios
@@ -54,7 +55,7 @@ class App extends Component {
 					marginLeft: '2.5px',
 					marginTop: '2.5px',
 					height: '100%',
-					width: '100%'
+					width: '600px'
 				}}
 			>
 				{this.state.data.legs.map((leg) => {
@@ -137,23 +138,37 @@ class App extends Component {
 
 	// Rendering the form to change active leg and driver's progress
 	renderForm() {
+		const formError = (
+			<p>Value must be between a whole number between 0 and 100</p>
+		);
 		return (
 			<div>
 				<form>
-					<select
-						onChange={(e) => {
-							this.handleSelectChange(e);
-						}}
-						value={this.state.data.driver.activeLegID}
-					>
-						{this.state.data.legs.map((leg) => {
-							return <option value={leg.legID}>{leg.legID}</option>;
-						})}
-					</select>
-					<input
-						onBlur={(e) => this.handleInputChange(e)}
-						placeholder="enter progress percent here"
-					/>
+					<div>
+						<label>Select which leg the driver is on:</label>
+						<select
+							onChange={(e) => {
+								this.handleSelectChange(e);
+							}}
+							value={this.state.data.driver.activeLegID}
+						>
+							{this.state.data.legs.map((leg) => {
+								return <option value={leg.legID}>{leg.legID}</option>;
+							})}
+						</select>
+					</div>
+					<div>
+						<label>Enter the progress below (0 to 100):</label>
+						<input
+							onChange={(e) => this.handleInputChange(e)}
+							placeholder="ex. 72"
+							type="number"
+							min="0"
+							max="100"
+							value={Math.round(this.state.legProgress * 100)}
+						/>
+						{this.state.formError ? formError : null}
+					</div>
 				</form>
 			</div>
 		);
@@ -171,23 +186,30 @@ class App extends Component {
 	}
 
 	handleInputChange(e) {
-		this.setState({ legProgress: e.target.value / 100 });
-		axios
-			.put('http://localhost:8080/driver', {
-				activeLegID: this.state.data.driver.activeLegID,
-				legProgress: e.target.value
-			})
-			.then((res) => console.log(res))
-			.catch((e) => console.log(e));
+		if (e.target.value <= 100 && e.target.value >= 0) {
+			this.setState({ legProgress: e.target.value / 100, formError: false });
+			axios
+				.put('http://localhost:8080/driver', {
+					activeLegID: this.state.data.driver.activeLegID,
+					legProgress: e.target.value
+				})
+				.then((res) => console.log(res))
+				.catch((e) => console.log(e));
+		} else {
+			this.setState({
+				formError: true
+			});
+		}
 	}
+
 	render() {
 		if (this.state.data) {
 			this.renderCompletedProgress(this.state.data.driver.activeLegID[0]);
 			return (
-				<div className="App">
+				<div className="app">
 					{this.renderStops()}
 					{this.renderLegs()}
-					{this.renderForm()}
+					<div className="form-container">{this.renderForm()}</div>
 				</div>
 			);
 		}
