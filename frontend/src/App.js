@@ -164,10 +164,21 @@ class App extends Component {
 		let newLocation = this.state.data;
 		newLocation.driver.activeLegID = e.target.value;
 		this.setState({ data: newLocation });
+		axios
+			.put('http://localhost:8080/driver', newLocation.driver)
+			.then((res) => console.log(res))
+			.catch((e) => console.log(e));
 	}
 
 	handleInputChange(e) {
 		this.setState({ legProgress: e.target.value / 100 });
+		axios
+			.put('http://localhost:8080/driver', {
+				activeLegID: this.state.data.driver.activeLegID,
+				legProgress: e.target.value
+			})
+			.then((res) => console.log(res))
+			.catch((e) => console.log(e));
 	}
 	render() {
 		if (this.state.data) {
